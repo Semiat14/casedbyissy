@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ImagePlaceholder from "@/components/ImagePlaceholder";
+import Image from "next/image";
 import { about } from "@/lib/content";
 import { getCollections } from "@/lib/data";
 
@@ -30,7 +30,15 @@ export default async function AboutPage() {
       {/* Founder */}
       <section className="border-y border-foreground/10">
         <div className="mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[2fr_3fr] md:items-center md:gap-16 md:px-8 md:py-24">
-          <ImagePlaceholder className="aspect-[3/4] w-full max-w-sm" />
+          <div className="relative aspect-[3/4] w-full max-w-sm overflow-hidden bg-blush">
+            <Image
+              src="/images/issy.jpg"
+              alt="Issy, founder of Cased By Issy"
+              fill
+              sizes="(min-width: 768px) 384px, 100vw"
+              className="object-cover object-[55%_30%]"
+            />
+          </div>
           <div>
             <p className="text-xs uppercase tracking-[0.15em] text-foreground/60">
               {founder.title}

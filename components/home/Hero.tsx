@@ -1,5 +1,5 @@
 import Link from "next/link";
-import ImagePlaceholder from "@/components/ImagePlaceholder";
+import Image from "next/image";
 
 export default function Hero() {
   return (
@@ -17,7 +17,17 @@ export default function Hero() {
           Shop collections
         </Link>
       </div>
-      <ImagePlaceholder className="aspect-[4/5] w-full" />
+      {/* Placeholder illustration until Issy's own hero photo arrives:
+          replace public/images/hero.svg (or point src at the new photo). */}
+      <Image
+        src="/images/hero.svg"
+        alt="Cased By Issy phone cases"
+        width={1600}
+        height={2000}
+        priority
+        unoptimized
+        className="aspect-[4/5] h-auto w-full"
+      />
     </section>
   );
 }
