@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ShopChrome from "@/components/ShopChrome";
 
 export const metadata: Metadata = {
   title: "Page not found",
 };
 
+// Lives at the root so it catches every unknown URL. The root layout has no
+// navbar or footer any more, so it wraps itself in the shop frame.
 export default function NotFound() {
+  return (
+    <ShopChrome>
+      <NotFoundMessage />
+    </ShopChrome>
+  );
+}
+
+function NotFoundMessage() {
   return (
     <section className="mx-auto flex max-w-xl flex-col items-center px-5 py-24 text-center md:py-32">
       <p className="text-xs uppercase tracking-[0.15em] text-foreground/60">Page not found</p>

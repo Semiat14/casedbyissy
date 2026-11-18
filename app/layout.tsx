@@ -1,9 +1,5 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, DM_Sans } from "next/font/google";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import WhatsAppButton from "@/components/WhatsAppButton";
-import CartProvider from "@/components/cart/CartProvider";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -27,20 +23,15 @@ export const metadata: Metadata = {
   description: "Handpicked phone cases that feel like you.",
 };
 
+// The root layout only sets up the document, fonts and global styles.
+// The shop frame lives in app/(shop)/layout.tsx; the admin frame in app/admin/layout.tsx.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
       className={`${cormorant.variable} ${dmSans.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <CartProvider>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <WhatsAppButton />
-        </CartProvider>
-      </body>
+      <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
 }
