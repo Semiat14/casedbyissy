@@ -54,12 +54,13 @@ export default async function AboutPage() {
 
       {/* Collections */}
       <section className="mx-auto max-w-3xl px-5 py-16 text-center md:py-24">
+        {/* flex-wrap lets the names flow onto new lines on small screens */}
         {collections.length > 0 && (
-          <p className="mb-10 font-heading text-xl leading-relaxed text-foreground/60 md:text-2xl">
+          <p className="mb-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 font-heading text-xl leading-relaxed text-foreground/60 md:text-2xl">
             {collections.map((c, i) => (
-              <span key={c.id}>
+              <span key={c.id} className="flex items-center gap-x-3">
                 {i > 0 && (
-                  <span aria-hidden="true" className="px-3 text-base">
+                  <span aria-hidden="true" className="text-base">
                     ✦
                   </span>
                 )}
