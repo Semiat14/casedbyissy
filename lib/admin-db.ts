@@ -7,6 +7,7 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { MoveDirection } from "./admin-forms";
+import { IMAGE_BUCKET } from "./storage";
 
 /** Postgres error codes we turn into friendly messages. */
 export const PG = {
@@ -19,6 +20,18 @@ export function errorCode(error: unknown): string | undefined {
   return typeof error === "object" && error !== null && "code" in error
     ? String((error as { code: unknown }).code)
     : undefined;
+}
+
+/**
+ * Deletes photos from the product-images bucket. Failures are logged, not
+ * thrown: the database change has already been saved, and a leftover file
+ * is harmless.
+ */
+export async function removeStoredImages(supabase: SupabaseClient, paths: string[]): Promise<void> {
+  const unique = [...new Set(paths.filter(Boolean))];
+  if (unique.length === 0) return;
+  const { error } = await supabase.storage.from(IMAGE_BUCKET).remove(unique);
+  if (error) console.error("[admin] removing photos failed:", error, unique);
 }
 
 /** The next sort_order value, so new rows go to the end of the list. */

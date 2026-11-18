@@ -7,6 +7,8 @@ type SubmitButtonProps = {
   pendingLabel?: string;
   variant?: "primary" | "danger" | "secondary";
   className?: string;
+  /** e.g. while photos are still uploading. */
+  disabled?: boolean;
 };
 
 const variants = {
@@ -21,14 +23,15 @@ export default function SubmitButton({
   pendingLabel = "Saving…",
   variant = "primary",
   className = "",
+  disabled = false,
 }: SubmitButtonProps) {
   const { pending } = useFormStatus();
 
   return (
     <button
       type="submit"
-      disabled={pending}
-      aria-disabled={pending}
+      disabled={pending || disabled}
+      aria-disabled={pending || disabled}
       className={`min-h-12 w-full px-6 py-3 text-sm uppercase tracking-[0.15em] transition-opacity disabled:opacity-50 sm:w-auto ${variants[variant]} ${className}`}
     >
       {pending ? pendingLabel : children}

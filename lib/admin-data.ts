@@ -21,6 +21,8 @@ export type AdminCollection = {
   name: string;
   slug: string;
   description: string;
+  /** Storage path of the cover photo, or null. */
+  coverImage: string | null;
   productCount: number;
 };
 
@@ -29,6 +31,7 @@ type AdminCollectionRow = {
   name: string;
   slug: string;
   description: string | null;
+  cover_image: string | null;
   products: { count: number }[] | null;
 };
 
@@ -38,6 +41,7 @@ function toAdminCollection(row: AdminCollectionRow): AdminCollection {
     name: row.name,
     slug: row.slug,
     description: row.description ?? "",
+    coverImage: row.cover_image,
     productCount: row.products?.[0]?.count ?? 0,
   };
 }
@@ -49,7 +53,7 @@ export async function getAdminCollections(): Promise<AdminCollection[] | null> {
 
   const { data, error } = await supabase
     .from("collections")
-    .select("id, name, slug, description, products(count)")
+    .select("id, name, slug, description, cover_image, products(count)")
     .order("sort_order", { ascending: true })
     .order("name", { ascending: true })
     .overrideTypes<AdminCollectionRow[], { merge: false }>();
@@ -69,7 +73,7 @@ export async function getAdminCollection(id: string): Promise<AdminCollection | 
 
   const { data, error } = await supabase
     .from("collections")
-    .select("id, name, slug, description, products(count)")
+    .select("id, name, slug, description, cover_image, products(count)")
     .eq("id", id)
     .maybeSingle<AdminCollectionRow>();
 
@@ -164,6 +168,132 @@ export async function getPhoneModelProductCount(id: string): Promise<number> {
     return 0;
   }
   return count ?? 0;
+}
+
+// ---------------------------------------------------------------------------
+// Products
+// ---------------------------------------------------------------------------
+
+export type AdminProductSummary = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  /** Storage path of the main photo, or null. */
+  mainImage: string | null;
+  collectionId: string;
+  collectionName: string;
+  isActive: boolean;
+  isFeatured: boolean;
+};
+
+type AdminProductSummaryRow = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  images: string[] | null;
+  collection_id: string;
+  is_active: boolean;
+  is_featured: boolean;
+  collections: { name: string } | null;
+};
+
+/**
+ * All products, hidden ones included, newest first. Pass a collection id to
+ * show only that collection. `null` on error.
+ */
+export async function getAdminProducts(collectionId?: string): Promise<AdminProductSummary[] | null> {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("products")
+    .select("id, name, slug, price, images, collection_id, is_active, is_featured, collections(name)")
+    .order("created_at", { ascending: false });
+  if (collectionId && isUuid(collectionId)) query = query.eq("collection_id", collectionId);
+
+  const { data, error } = await query.overrideTypes<AdminProductSummaryRow[], { merge: false }>();
+  if (error) {
+    console.error("[admin] getAdminProducts failed:", error);
+    return null;
+  }
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    name: row.name,
+    slug: row.slug,
+    price: row.price,
+    mainImage: row.images?.[0] ?? null,
+    collectionId: row.collection_id,
+    collectionName: row.collections?.name ?? "—",
+    isActive: row.is_active,
+    isFeatured: row.is_featured,
+  }));
+}
+
+export type AdminProduct = {
+  id: string;
+  name: string;
+  slug: string;
+  collectionId: string;
+  description: string;
+  price: number;
+  /** Storage paths, main photo first. */
+  images: string[];
+  isFeatured: boolean;
+  isActive: boolean;
+  phoneModels: { phoneModelId: string; inStock: boolean }[];
+};
+
+type AdminProductRow = {
+  id: string;
+  name: string;
+  slug: string;
+  collection_id: string;
+  description: string | null;
+  price: number;
+  images: string[] | null;
+  is_featured: boolean;
+  is_active: boolean;
+  product_phone_models: { phone_model_id: string; in_stock: boolean }[] | null;
+};
+
+/** One product with its phone models, or null if it doesn't exist. */
+export async function getAdminProduct(id: string): Promise<AdminProduct | null> {
+  await requireAdmin();
+  if (!isUuid(id)) return null;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      "id, name, slug, collection_id, description, price, images, is_featured, is_active, product_phone_models(phone_model_id, in_stock)",
+    )
+    .eq("id", id)
+    .maybeSingle<AdminProductRow>();
+
+  if (error) {
+    console.error("[admin] getAdminProduct failed:", error);
+    return null;
+  }
+  if (!data) return null;
+
+  return {
+    id: data.id,
+    name: data.name,
+    slug: data.slug,
+    collectionId: data.collection_id,
+    description: data.description ?? "",
+    price: data.price,
+    images: data.images ?? [],
+    isFeatured: data.is_featured,
+    isActive: data.is_active,
+    phoneModels: (data.product_phone_models ?? []).map((link) => ({
+      phoneModelId: link.phone_model_id,
+      inStock: link.in_stock,
+    })),
+  };
 }
 
 // ---------------------------------------------------------------------------

@@ -6,11 +6,18 @@ import { saveCollection } from "@/app/admin/(protected)/collections/actions";
 import { initialFormState, slugify } from "@/lib/admin-forms";
 import FormField, { FormTextarea } from "./FormField";
 import FormMessage from "./FormMessage";
+import PhotoUploader from "./PhotoUploader";
 import SubmitButton from "./SubmitButton";
 
 type CollectionFormProps = {
   /** Omit to create a new collection. */
-  collection?: { id: string; name: string; slug: string; description: string };
+  collection?: {
+    id: string;
+    name: string;
+    slug: string;
+    description: string;
+    coverImage: string | null;
+  };
 };
 
 export default function CollectionForm({ collection }: CollectionFormProps) {
@@ -25,6 +32,8 @@ export default function CollectionForm({ collection }: CollectionFormProps) {
   // New collections: the slug follows the name until Issy edits it herself.
   const [slugEdited, setSlugEdited] = useState(isEditing);
 
+  const [uploading, setUploading] = useState(false);
+
   const slugChanged = isEditing && slug !== collection?.slug;
   const errors = state.fieldErrors ?? {};
 
@@ -33,6 +42,18 @@ export default function CollectionForm({ collection }: CollectionFormProps) {
       {state.status === "error" && state.message && (
         <FormMessage status="error">{state.message}</FormMessage>
       )}
+
+      <div>
+        <p className="mb-2 text-xs uppercase tracking-[0.15em] text-foreground/65">Cover photo</p>
+        <PhotoUploader
+          folder="collections"
+          name="coverImage"
+          maxPhotos={1}
+          initialPaths={collection?.coverImage ? [collection.coverImage] : []}
+          onBusyChange={setUploading}
+          error={errors.coverImage}
+        />
+      </div>
 
       <FormField
         label="Name"
@@ -89,7 +110,9 @@ export default function CollectionForm({ collection }: CollectionFormProps) {
       />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <SubmitButton>{isEditing ? "Save changes" : "Create collection"}</SubmitButton>
+        <SubmitButton disabled={uploading}>
+          {uploading ? "Uploading photo…" : isEditing ? "Save changes" : "Create collection"}
+        </SubmitButton>
         <Link
           href="/admin/collections"
           className="flex min-h-12 items-center justify-center px-6 text-sm uppercase tracking-[0.15em] text-foreground/65 hover:text-foreground"
