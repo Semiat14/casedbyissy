@@ -3,6 +3,7 @@ import { getCollections } from "@/lib/data";
 
 export default async function CollectionsGrid() {
   const collections = await getCollections();
+  if (collections.length === 0) return null; // hide the section until there's something to show
 
   return (
     <section className="mx-auto max-w-6xl px-5 py-16 md:px-8 md:py-24">

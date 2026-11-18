@@ -22,6 +22,7 @@ function MarqueeRow({
 
 export default async function Marquee() {
   const collections = await getCollections();
+  if (collections.length === 0) return null; // hide the strip until there's something to show
 
   return (
     <div className="overflow-hidden border-y border-foreground/10 py-3">

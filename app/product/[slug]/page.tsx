@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductImages from "@/components/product/ProductImages";
 import ProductOptions from "@/components/product/ProductOptions";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { getCollectionById, getPhoneModelsForProduct, getProductBySlug } from "@/lib/data";
 import { formatPrice } from "@/lib/format";
 
@@ -52,16 +54,35 @@ async function ProductContent({ params }: ProductPageProps) {
           <p className="mt-6 max-w-md leading-relaxed text-foreground/75">{product.description}</p>
 
           <div className="mt-10 border-t border-foreground/10 pt-10">
-            <ProductOptions
-              product={{
-                id: product.id,
-                slug: product.slug,
-                name: product.name,
-                collectionName: collection?.name ?? "",
-                price: product.price,
-              }}
-              models={models}
-            />
+            {models.length > 0 ? (
+              <ProductOptions
+                product={{
+                  id: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  collectionName: collection?.name ?? "",
+                  price: product.price,
+                }}
+                models={models}
+              />
+            ) : (
+              <div>
+                <p className="leading-relaxed text-foreground/75">
+                  Message us on WhatsApp to check availability for your phone.
+                </p>
+                <a
+                  href={buildWhatsAppUrl(
+                    `Hi Issy! 💕 Is ${product.name} available for my phone? My phone is: `,
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 flex w-full items-center justify-center gap-3 bg-foreground px-8 py-4 text-sm uppercase tracking-[0.15em] text-background transition-opacity hover:opacity-85"
+                >
+                  <WhatsAppIcon size={20} />
+                  Ask on WhatsApp
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>

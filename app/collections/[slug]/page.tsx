@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
+import { contact } from "@/lib/content";
 import { getCollectionBySlug, getProductsByCollection } from "@/lib/data";
 
 type CollectionPageProps = {
@@ -43,7 +44,17 @@ async function CollectionContent({ params }: CollectionPageProps) {
           ))}
         </ul>
       ) : (
-        <p className="mt-12 text-foreground/70">New pieces are on the way — check back soon.</p>
+        <div className="mt-12 border-t border-foreground/10 pt-12 md:mt-16">
+          <p className="font-heading text-3xl md:text-4xl">New pieces coming soon ✦</p>
+          <a
+            href={contact.instagram.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block text-sm uppercase tracking-[0.15em] text-foreground/60 transition-colors hover:text-foreground"
+          >
+            See the latest on Instagram {contact.instagram.handle} →
+          </a>
+        </div>
       )}
     </>
   );

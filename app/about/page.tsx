@@ -46,21 +46,23 @@ export default async function AboutPage() {
 
       {/* Collections */}
       <section className="mx-auto max-w-3xl px-5 py-16 text-center md:py-24">
-        <p className="font-heading text-xl leading-relaxed text-foreground/60 md:text-2xl">
-          {collections.map((c, i) => (
-            <span key={c.id}>
-              {i > 0 && (
-                <span aria-hidden="true" className="px-3 text-base">
-                  ✦
-                </span>
-              )}
-              <span className="whitespace-nowrap">{c.name}</span>
-            </span>
-          ))}
-        </p>
+        {collections.length > 0 && (
+          <p className="mb-10 font-heading text-xl leading-relaxed text-foreground/60 md:text-2xl">
+            {collections.map((c, i) => (
+              <span key={c.id}>
+                {i > 0 && (
+                  <span aria-hidden="true" className="px-3 text-base">
+                    ✦
+                  </span>
+                )}
+                <span className="whitespace-nowrap">{c.name}</span>
+              </span>
+            ))}
+          </p>
+        )}
         <Link
           href="/collections"
-          className="mt-10 inline-block bg-foreground px-8 py-4 text-sm uppercase tracking-[0.15em] text-background transition-opacity hover:opacity-85"
+          className="inline-block bg-foreground px-8 py-4 text-sm uppercase tracking-[0.15em] text-background transition-opacity hover:opacity-85"
         >
           Explore the collections
         </Link>

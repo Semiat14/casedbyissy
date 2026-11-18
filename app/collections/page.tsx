@@ -16,13 +16,19 @@ export default async function CollectionsPage() {
       <p className="mt-5 max-w-md text-base leading-relaxed text-foreground/75 md:text-lg">
         Each collection tells its own story. Find the one that feels like you.
       </p>
-      <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
-        {collections.map((collection) => (
-          <li key={collection.id}>
-            <CollectionCard collection={collection} />
-          </li>
-        ))}
-      </ul>
+      {collections.length > 0 ? (
+        <ul className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 md:mt-16 md:grid-cols-3 md:gap-x-8 md:gap-y-14">
+          {collections.map((collection) => (
+            <li key={collection.id}>
+              <CollectionCard collection={collection} />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-12 border-t border-foreground/10 pt-12 font-heading text-3xl md:mt-16 md:text-4xl">
+          New collections coming soon ✦
+        </p>
+      )}
     </section>
   );
 }
