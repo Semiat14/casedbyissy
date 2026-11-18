@@ -1,18 +1,59 @@
 "use client";
 
 // The only interactive part of the product page: choosing a phone model and a
-// quantity. Everything else on the page is rendered on the server.
+// quantity, and adding to the cart. Everything else on the page is rendered
+// on the server.
 
 import { useState } from "react";
+import Link from "next/link";
+import QuantityStepper from "@/components/QuantityStepper";
+import { useCart } from "@/components/cart/CartProvider";
 import type { PhoneModelWithStock } from "@/lib/types";
 
-const MAX_QUANTITY = 10;
+type ProductOptionsProps = {
+  product: {
+    id: string;
+    slug: string;
+    name: string;
+    collectionName: string;
+    price: number;
+  };
+  models: PhoneModelWithStock[];
+};
 
-export default function ProductOptions({ models }: { models: PhoneModelWithStock[] }) {
+export default function ProductOptions({ product, models }: ProductOptionsProps) {
+  const { addItem } = useCart();
   const [modelId, setModelId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
 
   const allSoldOut = models.length > 0 && models.every((m) => !m.inStock);
+  const selectedModel = models.find((m) => m.id === modelId && m.inStock);
+
+  function chooseModel(id: string) {
+    setModelId(id);
+    setJustAdded(false);
+  }
+
+  function changeQuantity(value: number) {
+    setQuantity(value);
+    setJustAdded(false);
+  }
+
+  function handleAdd() {
+    if (!selectedModel) return;
+    addItem({
+      productId: product.id,
+      slug: product.slug,
+      name: product.name,
+      collectionName: product.collectionName,
+      phoneModelId: selectedModel.id,
+      phoneModelName: selectedModel.name,
+      unitPrice: product.price,
+      quantity,
+    });
+    setJustAdded(true);
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -29,7 +70,7 @@ export default function ProductOptions({ models }: { models: PhoneModelWithStock
                 type="button"
                 disabled={!model.inStock}
                 aria-pressed={selected}
-                onClick={() => setModelId(model.id)}
+                onClick={() => chooseModel(model.id)}
                 className={`flex flex-col items-start border px-4 py-3 text-left text-sm transition-colors ${
                   selected
                     ? "border-foreground bg-foreground text-background"
@@ -47,46 +88,37 @@ export default function ProductOptions({ models }: { models: PhoneModelWithStock
       </fieldset>
 
       <div>
-        <span id="quantity-label" className="text-xs uppercase tracking-[0.15em] text-foreground/60">
-          Quantity
-        </span>
-        <div
-          role="group"
-          aria-labelledby="quantity-label"
-          className="mt-3 inline-flex items-center border border-foreground/15"
-        >
-          <button
-            type="button"
-            aria-label="Decrease quantity"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            disabled={quantity <= 1}
-            className="h-11 w-11 text-lg disabled:text-foreground/25"
-          >
-            −
-          </button>
-          <span className="w-10 text-center text-sm tabular-nums" aria-live="polite">
-            {quantity}
-          </span>
-          <button
-            type="button"
-            aria-label="Increase quantity"
-            onClick={() => setQuantity((q) => Math.min(MAX_QUANTITY, q + 1))}
-            disabled={quantity >= MAX_QUANTITY}
-            className="h-11 w-11 text-lg disabled:text-foreground/25"
-          >
-            +
-          </button>
+        <p className="text-xs uppercase tracking-[0.15em] text-foreground/60">Quantity</p>
+        <div className="mt-3">
+          <QuantityStepper value={quantity} onChange={changeQuantity} label="Quantity" />
         </div>
       </div>
 
-      {/* Not wired up yet — the cart comes in a later step. */}
-      <button
-        type="button"
-        disabled={!modelId}
-        className="w-full bg-foreground px-8 py-4 text-sm uppercase tracking-[0.15em] text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        {allSoldOut ? "Sold out" : modelId ? "Add to cart" : "Select a model"}
-      </button>
+      <div>
+        <button
+          type="button"
+          onClick={handleAdd}
+          disabled={!selectedModel}
+          className="w-full bg-foreground px-8 py-4 text-sm uppercase tracking-[0.15em] text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {allSoldOut ? "Sold out" : selectedModel ? "Add to cart" : "Select a model"}
+        </button>
+
+        {/* Announced to screen readers when it appears. */}
+        <div aria-live="polite" className="mt-4 min-h-6 text-sm">
+          {justAdded && (
+            <p className="flex flex-wrap items-center justify-between gap-2">
+              <span>✓ Added to cart</span>
+              <Link
+                href="/cart"
+                className="uppercase tracking-[0.15em] text-xs underline underline-offset-4 hover:opacity-60"
+              >
+                View cart
+              </Link>
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

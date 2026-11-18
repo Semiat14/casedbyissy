@@ -1,10 +1,12 @@
 import Link from "next/link";
+import { contact } from "@/lib/content";
+import { buildWhatsAppUrl } from "@/lib/whatsapp";
 import { navLinks } from "./navLinks";
 
 const socialLinks = [
-  { href: "https://www.instagram.com/casedbyissy_", label: "Instagram" },
-  { href: "https://www.snapchat.com/add/isyyy.y", label: "Snapchat" },
-  { href: "https://wa.me/2349048333331", label: "WhatsApp" },
+  { href: contact.instagram.url, label: "Instagram" },
+  { href: contact.snapchat.url, label: "Snapchat" },
+  { href: buildWhatsAppUrl(), label: "WhatsApp" },
 ];
 
 export default function Footer() {

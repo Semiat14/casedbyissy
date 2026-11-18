@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, ShoppingBag, X } from "lucide-react";
 import { navLinks } from "./navLinks";
+import { useCart } from "./cart/CartProvider";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const { itemCount } = useCart();
   const closeMenu = () => setIsOpen(false);
 
   // Stop the page behind the menu from scrolling while it's open.
@@ -46,10 +48,20 @@ export default function Navbar() {
           <Link
             href="/cart"
             onClick={closeMenu}
-            aria-label="Cart"
-            className="p-2 transition-opacity hover:opacity-60"
+            aria-label={
+              itemCount > 0 ? `Cart, ${itemCount} item${itemCount === 1 ? "" : "s"}` : "Cart"
+            }
+            className="relative p-2 transition-opacity hover:opacity-60"
           >
             <ShoppingBag size={20} strokeWidth={1.5} />
+            {itemCount > 0 && (
+              <span
+                aria-hidden="true"
+                className="absolute top-0 right-0 flex h-4 min-w-4 items-center justify-center rounded-full bg-foreground px-1 text-[10px] leading-none font-medium text-background tabular-nums"
+              >
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
           </Link>
 
           <button

@@ -3,7 +3,8 @@ import CollectionCard from "@/components/CollectionCard";
 import { getCollections } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Collections — Cased By Issy",
+  title: "Collections",
+  description: "Browse every Cased By Issy collection — from Persian Princess to Ambelle.",
 };
 
 export default async function CollectionsPage() {

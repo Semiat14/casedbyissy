@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductImages from "@/components/product/ProductImages";
@@ -9,6 +10,16 @@ import { formatPrice } from "@/lib/format";
 type ProductPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await getProductBySlug(slug);
+  if (!product) return { title: "Product not found" };
+  return {
+    title: product.name,
+    description: `${product.name} — ${formatPrice(product.price)}. ${product.description}`,
+  };
+}
 
 // With Cache Components, params is request-time data, so it must be awaited inside <Suspense>.
 async function ProductContent({ params }: ProductPageProps) {
@@ -41,7 +52,16 @@ async function ProductContent({ params }: ProductPageProps) {
           <p className="mt-6 max-w-md leading-relaxed text-foreground/75">{product.description}</p>
 
           <div className="mt-10 border-t border-foreground/10 pt-10">
-            <ProductOptions models={models} />
+            <ProductOptions
+              product={{
+                id: product.id,
+                slug: product.slug,
+                name: product.name,
+                collectionName: collection?.name ?? "",
+                price: product.price,
+              }}
+              models={models}
+            />
           </div>
         </div>
       </div>

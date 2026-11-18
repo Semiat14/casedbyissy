@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/ProductCard";
@@ -7,6 +8,16 @@ import { getCollectionBySlug, getProductsByCollection } from "@/lib/data";
 type CollectionPageProps = {
   params: Promise<{ slug: string }>;
 };
+
+export async function generateMetadata({ params }: CollectionPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const collection = await getCollectionBySlug(slug);
+  if (!collection) return { title: "Collection not found" };
+  return {
+    title: collection.name,
+    description: `${collection.description} Shop the ${collection.name} collection at Cased By Issy.`,
+  };
+}
 
 // With Cache Components, params is request-time data, so it must be awaited inside <Suspense>.
 async function CollectionContent({ params }: CollectionPageProps) {
